@@ -40,8 +40,8 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import * as testCaseApi from '../api/testCase'
-import * as bugApi from '../api/bug'
+import * as testCaseApi from '../api/testCases'
+import * as bugApi from '../api/bugs'
 
 const stats = ref({
   totalTestCases: 0,
@@ -52,8 +52,10 @@ const stats = ref({
 
 const fetchStats = async () => {
   try {
-    const testCases = await testCaseApi.getList()
-    const bugs = await bugApi.getList()
+    const res = await testCaseApi.getAll()
+    const testCases = res.data || []
+    const res2 = await bugApi.getAll()
+    const bugs = res2.data || []
     
     stats.value.totalTestCases = testCases.length
     stats.value.passedTestCases = testCases.filter(tc => tc.status === 'PASSED').length
