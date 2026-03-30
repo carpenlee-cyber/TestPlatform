@@ -1,63 +1,49 @@
-"""Login Page Object Model"""
-from pages.base_page import BasePage
+from playwright.sync_api import Page, expect
 
 
-class LoginPage(BasePage):
-    """Page object for the login page"""
-    
-    # Selectors
-    USERNAME_INPUT = "[data-testid='username-input']"
-    PASSWORD_INPUT = "[data-testid='password-input']"
-    LOGIN_BUTTON = "[data-testid='login-button']"
-    ERROR_MESSAGE = "[data-testid='error-message']"
-    LOGOUT_BUTTON = "[data-testid='logout-button']"
-    USER_MENU = "[data-testid='user-menu']"
-    
-    def navigate_to_login(self):
+class LoginPage:
+    def __init__(self, page: Page):
+        self.page = page
+        self.base_url = "http://localhost"
+        
+    def navigate(self):
         """Navigate to login page"""
-        return self.navigate("/login")
-    
-    def enter_username(self, username: str):
-        """Enter username"""
-        self.fill(self.USERNAME_INPUT, username)
-        return self
-    
-    def enter_password(self, password: str):
-        """Enter password"""
-        self.fill(self.PASSWORD_INPUT, password)
-        return self
-    
-    def click_login(self):
-        """Click login button"""
-        self.click(self.LOGIN_BUTTON)
-        return self
+        self.page.goto(f"{self.base_url}/login")
+        self.page.wait_for_selector(".login-container", timeout=10000)
     
     def login(self, username: str, password: str):
-        """Perform complete login action"""
-        self.enter_username(username)
-        self.enter_password(password)
-        self.click_login()
-        return self
+        """Perform login with given credentials"""
+        # Fill username input - using placeholder attribute
+        username_input = self.page.locator('input[placeholder="用户名"]')
+        username_input.fill(username)
+        
+        # Fill password input
+        password_input = self.page.locator('input[placeholder="密码"]')
+        password_input.fill(password)
+        
+        # Click login button
+        login_button = self.page.locator('button:has-text("登录")')
+        login_button.click()
+        
+        # Wait for navigation or error
+        self.page.wait_for_timeout(2000)
     
     def get_error_message(self) -> str:
-        """Get error message text"""
-        if self.is_visible(self.ERROR_MESSAGE):
-            return self.get_text(self.ERROR_MESSAGE)
+        """Get error message from ElMessage (appears in DOM as notification)"""
+        # Element Plus messages appear as el-message elements
+        message = self.page.locator(".el-message--error .el-message__content")
+        if message.count() > 0:
+            return message.inner_text()
         return ""
     
-    def is_logged_in(self) -> bool:
-        """Check if user is logged in"""
-        return self.is_visible(self.USER_MENU) or self.is_visible(self.LOGOUT_BUTTON)
+    def get_validation_error(self) -> str:
+        """Get form validation error message"""
+        # Element Plus form validation errors appear in el-form-item__error
+        error = self.page.locator(".el-form-item__error")
+        if error.count() > 0:
+            return error.first.inner_text()
+        return ""
     
-    def click_logout(self):
-        """Click logout button"""
-        if self.is_visible(self.USER_MENU):
-            self.click(self.USER_MENU)
-        self.click(self.LOGOUT_BUTTON)
-        return self
-    
-    def wait_for_login_form(self):
-        """Wait for login form to be ready"""
-        self.wait_for_element(self.USERNAME_INPUT)
-        self.wait_for_element(self.PASSWORD_INPUT)
-        return self
+    def is_on_dashboard(self) -> bool:
+        """Check if current page is dashboard"""
+        return "/dashboard" in self.page.url

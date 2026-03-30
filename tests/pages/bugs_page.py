@@ -1,137 +1,95 @@
-"""Bugs Page Object Model"""
-from pages.base_page import BasePage
+from playwright.sync_api import Page, expect
 
 
-class BugsPage(BasePage):
-    """Page object for bugs management page"""
-    
-    # Selectors
-    CREATE_BUTTON = "[data-testid='create-bug-button']"
-    BUG_TABLE = "[data-testid='bug-table']"
-    BUG_ROWS = "[data-testid='bug-row']"
-    TITLE_INPUT = "[data-testid='bug-title-input']"
-    DESCRIPTION_INPUT = "[data-testid='bug-description-input']"
-    SEVERITY_SELECT = "[data-testid='bug-severity-select']"
-    PRIORITY_SELECT = "[data-testid='bug-priority-select']"
-    STATUS_SELECT = "[data-testid='bug-status-select']"
-    ASSIGNEE_SELECT = "[data-testid='bug-assignee-select']"
-    SAVE_BUTTON = "[data-testid='save-bug-button']"
-    CANCEL_BUTTON = "[data-testid='cancel-button']"
-    EDIT_BUTTON = "[data-testid='edit-button']"
-    DELETE_BUTTON = "[data-testid='delete-button']"
-    CONFIRM_DELETE_BUTTON = "[data-testid='confirm-delete-button']"
-    SEARCH_INPUT = "[data-testid='search-input']"
-    SEARCH_BUTTON = "[data-testid='search-button']"
-    FILTER_STATUS = "[data-testid='filter-status']"
-    FILTER_SEVERITY = "[data-testid='filter-severity']"
-    
-    def navigate_to_bugs(self):
+class BugsPage:
+    def __init__(self, page: Page):
+        self.page = page
+        self.base_url = "http://localhost"
+        
+    def navigate(self):
         """Navigate to bugs page"""
-        return self.navigate("/bugs")
+        self.page.goto(f"{self.base_url}/bugs")
+        self.page.wait_for_selector(".bugs-page", timeout=10000)
     
     def click_create(self):
-        """Click create new bug button"""
-        self.click(self.CREATE_BUTTON)
-        return self
+        """Click the add new bug button"""
+        add_button = self.page.locator('button:has-text("新增Bug")')
+        add_button.click()
+        # Wait for dialog to appear
+        self.page.wait_for_selector(".el-dialog", timeout=5000)
     
-    def enter_title(self, title: str):
-        """Enter bug title"""
-        self.fill(self.TITLE_INPUT, title)
-        return self
+    def fill_form(self, title: str, severity: str = "MEDIUM"):
+        """Fill the bug form"""
+        # Fill title - first input in dialog
+        title_input = self.page.locator('.el-dialog input[type="text"]').first
+        title_input.fill(title)
+        
+        # Select severity from dropdown
+        severity_select = self.page.locator('.el-dialog .el-select').first
+        severity_select.click()
+        
+        # Wait for dropdown options
+        self.page.wait_for_selector(".el-select-dropdown__item", timeout=3000)
+        
+        # Select severity option
+        option = self.page.locator(f'.el-select-dropdown__item:has-text("{severity}")')
+        option.click()
     
-    def enter_description(self, description: str):
-        """Enter bug description"""
-        self.fill(self.DESCRIPTION_INPUT, description)
-        return self
+    def submit(self):
+        """Submit the form"""
+        submit_button = self.page.locator('.el-dialog__footer button:has-text("确定")')
+        submit_button.click()
+        # Wait for dialog to close
+        self.page.wait_for_timeout(1000)
     
-    def select_severity(self, severity: str):
-        """Select bug severity"""
-        self.page.select_option(self.SEVERITY_SELECT, severity)
-        return self
+    def get_first_row_title(self) -> str:
+        """Get the title of the first row in the table"""
+        first_row = self.page.locator(".el-table__row").first
+        if first_row.count() > 0:
+            title_cell = first_row.locator("td").first  # First column is title
+            return title_cell.inner_text()
+        return ""
     
-    def select_priority(self, priority: str):
-        """Select bug priority"""
-        self.page.select_option(self.PRIORITY_SELECT, priority)
-        return self
+    def get_first_row_severity(self) -> str:
+        """Get the severity of the first row"""
+        first_row = self.page.locator(".el-table__row").first
+        if first_row.count() > 0:
+            severity_cell = first_row.locator("td").nth(1)  # Second column is severity
+            return severity_cell.inner_text()
+        return ""
     
-    def select_status(self, status: str):
-        """Select bug status"""
-        self.page.select_option(self.STATUS_SELECT, status)
-        return self
+    def get_row_count(self) -> int:
+        """Get the number of rows in the table"""
+        return self.page.locator(".el-table__row").count()
     
-    def select_assignee(self, assignee: str):
-        """Select bug assignee"""
-        self.page.select_option(self.ASSIGNEE_SELECT, assignee)
-        return self
+    def get_severity_tag_type(self) -> str:
+        """Get the Element Plus tag type for severity (for CSS class validation)"""
+        first_row = self.page.locator(".el-table__row").first
+        if first_row.count() > 0:
+            severity_cell = first_row.locator("td").nth(1)
+            tag = severity_cell.locator(".el-tag")
+            if tag.count() > 0:
+                # Get class attribute to determine tag type
+                class_attr = tag.get_attribute("class") or ""
+                if "el-tag--danger" in class_attr:
+                    return "danger"
+                elif "el-tag--warning" in class_attr:
+                    return "warning"
+                elif "el-tag--info" in class_attr:
+                    return "info"
+                else:
+                    return "default"
+        return ""
     
-    def click_save(self):
-        """Click save button"""
-        self.click(self.SAVE_BUTTON)
-        return self
-    
-    def click_cancel(self):
-        """Click cancel button"""
-        self.click(self.CANCEL_BUTTON)
-        return self
-    
-    def create_bug(self, title: str, description: str, severity: str = "medium", 
-                   priority: str = "medium", status: str = "open"):
-        """Create a complete bug"""
-        self.click_create()
-        self.enter_title(title)
-        self.enter_description(description)
-        self.select_severity(severity)
-        self.select_priority(priority)
-        self.select_status(status)
-        self.click_save()
-        return self
-    
-    def search_bug(self, keyword: str):
-        """Search for a bug"""
-        self.fill(self.SEARCH_INPUT, keyword)
-        self.click(self.SEARCH_BUTTON)
-        return self
-    
-    def get_bug_count(self) -> int:
-        """Get number of bug rows"""
-        return self.page.locator(self.BUG_ROWS).count()
-    
-    def click_edit_first(self):
-        """Click edit on first bug"""
-        self.page.locator(self.EDIT_BUTTON).first.click()
-        return self
-    
-    def click_delete_first(self):
-        """Click delete on first bug"""
-        self.page.locator(self.DELETE_BUTTON).first.click()
-        return self
-    
-    def confirm_delete(self):
-        """Confirm deletion"""
-        self.click(self.CONFIRM_DELETE_BUTTON)
-        return self
-    
-    def delete_first_bug(self):
-        """Delete the first bug"""
-        self.click_delete_first()
-        self.confirm_delete()
-        return self
-    
-    def filter_by_status(self, status: str):
-        """Filter bugs by status"""
-        self.page.select_option(self.FILTER_STATUS, status)
-        return self
-    
-    def filter_by_severity(self, severity: str):
-        """Filter bugs by severity"""
-        self.page.select_option(self.FILTER_SEVERITY, severity)
-        return self
-    
-    def wait_for_table(self):
-        """Wait for bug table to load"""
-        self.wait_for_element(self.BUG_TABLE)
-        return self
-    
-    def is_table_visible(self) -> bool:
-        """Check if bug table is visible"""
-        return self.is_visible(self.BUG_TABLE)
+    def delete_first(self):
+        """Delete the first row"""
+        first_row = self.page.locator(".el-table__row").first
+        if first_row.count() > 0:
+            delete_button = first_row.locator('button:has-text("删除")')
+            delete_button.click()
+            
+            # Confirm deletion in popconfirm
+            self.page.wait_for_selector(".el-popconfirm", timeout=3000)
+            confirm_button = self.page.locator('.el-popconfirm__action button:has-text("确定")')
+            confirm_button.click()
+            self.page.wait_for_timeout(1000)
