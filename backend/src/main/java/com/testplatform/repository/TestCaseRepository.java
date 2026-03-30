@@ -8,4 +8,6 @@ import java.util.List;
 
 @Repository
 public interface TestCaseRepository extends JpaRepository<TestCase, Long> {
-    List<TestCase> find
+    List<TestCase> findByStatus(String status);
+    List<TestCase> findByAssignee(String assignee);
+}

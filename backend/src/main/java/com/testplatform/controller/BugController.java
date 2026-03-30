@@ -53,3 +53,8 @@ public class BugController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
+    @GetMapping("/status/{status}")
+    public List<Bug> getBugsByStatus(@PathVariable String status) {
+        return bugService.findByStatus(status);
+    }
+}
