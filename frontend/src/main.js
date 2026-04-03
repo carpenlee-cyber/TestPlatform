@@ -6,15 +6,24 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 import App from './App.vue'
 import router from './router'
+import { useAuthStore } from './stores/auth'
 
 const app = createApp(App)
 
+// 注册所有 Element Plus 图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
   app.component(key, component)
 }
 
-app.use(createPinia())
+// 创建 Pinia 实例
+const pinia = createPinia()
+
+app.use(pinia)
 app.use(router)
 app.use(ElementPlus)
+
+// 初始化认证状态
+const authStore = useAuthStore()
+authStore.initAuth()
 
 app.mount('#app')

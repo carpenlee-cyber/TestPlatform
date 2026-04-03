@@ -1,0 +1,22 @@
+{
+  "tables": [
+    "audit_log",
+    "automation_scripts",
+    "bugs",
+    "projects",
+    "sqlite_sequence",
+    "test_cases",
+    "test_executions",
+    "users"
+  ],
+  "counts": {
+    "audit_log": 0,
+    "automation_scripts": 0,
+    "bugs": 1,
+    "projects": 1,
+    "sqlite_sequence": 3,
+    "test_cases": 0,
+    "test_executions": 0,
+    "users": 2
+  }
+}

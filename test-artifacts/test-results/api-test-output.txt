@@ -1,0 +1,56 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-6.2.5, py-1.10.0, pluggy-0.13.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /root/.openclaw/workspace/TestPlatform
+collecting ... collected 10 items
+
+test-artifacts/test-cases/test_api.py::TestTC001_LoginSuccess::test_login_success 
+  ✅ Token获取成功: eyJhbGciOiJIUzI1NiJ9...
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC002_LoginWrongPassword::test_login_wrong_password 
+  ✅ 错误密码被正确拒绝，code=401
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC003_NoTokenAccess::test_no_token_access 
+  ✅ 无token被拒绝: 403
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC004_GetTestCases::test_get_testcases_with_token FAILED
+test-artifacts/test-cases/test_api.py::TestTC005_CreateTestCase::test_create_testcase FAILED
+test-artifacts/test-cases/test_api.py::TestTC006_GetBugs::test_get_bugs_with_token 
+  ✅ Bug列表获取成功
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC007_CreateBug::test_create_bug 
+  ✅ Bug创建成功，ID=1
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC008_Dashboard::test_dashboard_stats 
+  ✅ Dashboard统计: {"totalTestCases": 0, "totalBugs": 1, "testCaseStatusCount": {}, "bugStatusCount": {"OPEN": 1}, "bugSeverityCount": {"MEDIUM": 1}}
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC009_Pagination::test_testcases_paginated FAILED
+test-artifacts/test-cases/test_api.py::TestTC010_DeleteTestCase::test_delete_testcase SKIPPED
+
+=================================== FAILURES ===================================
+_____________ TestTC004_GetTestCases.test_get_testcases_with_token _____________
+test-artifacts/test-cases/test_api.py:63: in test_get_testcases_with_token
+    assert resp.status_code == 200, f"期望200，实际{resp.status_code}，body={resp.text[:200]}"
+E   AssertionError: 期望200，实际500，body={"code":500,"message":"Internal Server Error, please contact administrator","data":null}
+E   assert 500 == 200
+E     +500
+E     -200
+________________ TestTC005_CreateTestCase.test_create_testcase _________________
+test-artifacts/test-cases/test_api.py:79: in test_create_testcase
+    assert resp.status_code == 200, f"期望200，实际{resp.status_code}，body={resp.text[:200]}"
+E   AssertionError: 期望200，实际500，body={"code":500,"message":"Internal Server Error, please contact administrator","data":null}
+E   assert 500 == 200
+E     +500
+E     -200
+________________ TestTC009_Pagination.test_testcases_paginated _________________
+test-artifacts/test-cases/test_api.py:133: in test_testcases_paginated
+    assert resp.status_code == 200, f"期望200，实际{resp.status_code}"
+E   AssertionError: 期望200，实际500
+E   assert 500 == 200
+E     +500
+E     -200
+=========================== short test summary info ============================
+FAILED test-artifacts/test-cases/test_api.py::TestTC004_GetTestCases::test_get_testcases_with_token
+FAILED test-artifacts/test-cases/test_api.py::TestTC005_CreateTestCase::test_create_testcase
+FAILED test-artifacts/test-cases/test_api.py::TestTC009_Pagination::test_testcases_paginated
+==================== 3 failed, 6 passed, 1 skipped in 1.01s ====================

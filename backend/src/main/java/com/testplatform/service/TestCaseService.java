@@ -3,6 +3,8 @@ package com.testplatform.service;
 import com.testplatform.entity.TestCase;
 import com.testplatform.repository.TestCaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,10 @@ public class TestCaseService {
     
     public List<TestCase> findAll() {
         return testCaseRepository.findAll();
+    }
+
+    public Page<TestCase> findPage(Pageable pageable, String status, String assignee) {
+        return testCaseRepository.findByCondition(status, assignee, pageable);
     }
     
     public Optional<TestCase> findById(Long id) {

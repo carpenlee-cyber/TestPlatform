@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # 1. 数据库服务 (MySQL)
+  # 使用加速镜像地址，解决 QNAP 报错 EOF 的问题
+  tp-db:
+    image: docker.m.daocloud.io/library/mysql:8.0
+    container_name: tp-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: testplatform
+      MYSQL_ROOT_PASSWORD: password123
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    networks:
+      - tp-net
+
+  # 2. 后端服务 (API)
+  # 关键：服务名必须设为 backend，以适配前端 Nginx 的 upstream 配置
+  backend:
+    image: ghcr.io/carpenlee-cyber/testplatform-backend:latest
+    container_name: tp-backend
+    restart: always
+    depends_on:
+      - tp-db
+    ports:
+      - "8089:8088"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://tp-db:3306/testplatform?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_DRIVER=com.mysql.cj.jdbc.Driver
+      - DB_USER=root
+      - DB_PASSWORD=password123
+      - SPRING_JPA_DIALECT=org.hibernate.dialect.MySQL8Dialect
+    networks:
+      - tp-net
+
+  # 3. 前端服务 (Web UI)
+  tp-frontend:
+    image: ghcr.io/carpenlee-cyber/testplatform-frontend:latest
+    container_name: tp-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    environment:
+      # 前端通过浏览器访问后端的地址
+      - VITE_APP_BASE_API=http://192.168.50.43:8089
+    networks:
+      - tp-net
+
+networks:
+  tp-net:
+    driver: bridge

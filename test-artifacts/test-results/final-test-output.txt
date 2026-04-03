@@ -1,0 +1,38 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.12, pytest-6.2.5, py-1.10.0, pluggy-0.13.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /root/.openclaw/workspace/TestPlatform
+collecting ... collected 10 items
+
+test-artifacts/test-cases/test_api.py::TestTC001_LoginSuccess::test_login_success 
+  ✅ Token获取成功: eyJhbGciOiJIUzI1NiJ9...
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC002_LoginWrongPassword::test_login_wrong_password 
+  ✅ 错误密码被正确拒绝，code=401
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC003_NoTokenAccess::test_no_token_access 
+  ✅ 无token被拒绝: 403
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC004_GetTestCases::test_get_testcases_with_token 
+  ✅ 用例列表获取成功
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC005_CreateTestCase::test_create_testcase 
+  ✅ 测试用例创建成功，ID=3
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC006_GetBugs::test_get_bugs_with_token 
+  ✅ Bug列表获取成功
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC007_CreateBug::test_create_bug 
+  ✅ Bug创建成功，ID=2
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC008_Dashboard::test_dashboard_stats 
+  ✅ Dashboard统计: {"totalTestCases": 3, "totalBugs": 2, "testCaseStatusCount": {"PENDING": 3}, "bugStatusCount": {"OPEN": 2}, "bugSeverityCount": {"MEDIUM": 2}}
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC009_Pagination::test_testcases_paginated 
+  ✅ 分页查询成功
+PASSED
+test-artifacts/test-cases/test_api.py::TestTC010_DeleteTestCase::test_delete_testcase 
+  ✅ 用例 ID=3 删除成功
+PASSED
+
+============================== 10 passed in 0.79s ==============================
