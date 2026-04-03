@@ -45,29 +45,40 @@ public class AuthController {
     
     @PostMapping("/login")
     public Result<Map<String, Object>> login(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-        String password = request.get("password");
-        
-        User user = userRepository.findByUsername(username).orElse(null);
-        
-        if (user == null || (!passwordEncoder.matches(password, user.getPassword()) && !password.equals(user.getPassword()))) {
-            if ("admin".equals(username) && "admin123".equals(password)) {
-                String token = jwtUtil.generateToken(username, "ADMIN");
-                Map<String, Object> data = new HashMap<>();
-                data.put("token", token);
-                data.put("username", username);
-                data.put("role", "ADMIN");
-                return Result.success(data);
+        try {
+            if (request == null) {
+                return Result.error(401, "Invalid credentials");
             }
+            String username = request.get("username");
+            String password = request.get("password");
+
+            if (username == null || password == null) {
+                return Result.error(401, "Invalid credentials");
+            }
+
+            User user = userRepository.findByUsername(username).orElse(null);
+
+            if (user == null || (!passwordEncoder.matches(password, user.getPassword()) && !password.equals(user.getPassword()))) {
+                if ("admin".equals(username) && "admin123".equals(password)) {
+                    String token = jwtUtil.generateToken(username, "ADMIN");
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("token", token);
+                    data.put("username", username);
+                    data.put("role", "ADMIN");
+                    return Result.success(data);
+                }
+                return Result.error(401, "Invalid credentials");
+            }
+
+            String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("token", token);
+            data.put("username", user.getUsername());
+            data.put("role", user.getRole());
+            return Result.success(data);
+        } catch (Exception e) {
             return Result.error(401, "Invalid credentials");
         }
-        
-        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-        
-        Map<String, Object> data = new HashMap<>();
-        data.put("token", token);
-        data.put("username", user.getUsername());
-        data.put("role", user.getRole());
-        return Result.success(data);
     }
 }

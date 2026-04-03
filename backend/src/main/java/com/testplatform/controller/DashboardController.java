@@ -15,7 +15,7 @@ public class DashboardController {
     @Autowired
     private DashboardService dashboardService;
 
-    @GetMapping("/stats")
+    @GetMapping({"/stats", "/summary"})
     public Result<DashboardStatDTO> getStats() {
         return Result.success(dashboardService.getDashboardStats());
     }

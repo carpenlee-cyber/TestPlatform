@@ -47,8 +47,10 @@ public class BugController {
     public Result<Bug> updateBug(@PathVariable Long id, @RequestBody Bug bug) {
         return bugService.findById(id)
                 .map(existing -> {
-                    bug.setId(id);
-                    return Result.success(bugService.save(bug));
+                    if (bug.getStatus() != null) {
+                        existing.setStatus(bug.getStatus());
+                    }
+                    return Result.success(bugService.save(existing));
                 })
                 .orElse(Result.error(404, "Bug not found"));
     }
