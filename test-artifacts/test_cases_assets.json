@@ -1,0 +1,81 @@
+[
+  {
+    "id": "TC-001",
+    "name": "User Login",
+    "description": "Verify that the user can log in with valid credentials.",
+    "steps": [
+      { "action": "goto", "params": { "url": "/login" }, "description": "Navigate to login page" },
+      { "action": "fill", "params": { "selector": "input[placeholder=\"请输入用户名\"]", "value": "admin" }, "description": "Enter username" },
+      { "action": "fill", "params": { "selector": "input[placeholder=\"请输入密码\"]", "value": "admin123" }, "description": "Enter password" },
+      { "action": "click", "params": { "selector": "button:has-text(\"登 录\")" }, "description": "Click login button" },
+      { "action": "wait_url", "params": { "url": "/dashboard" }, "description": "Wait for dashboard redirect" }
+    ],
+    "expected": "Redirected to dashboard and session established."
+  },
+  {
+    "id": "TC-002",
+    "name": "Create Test Case",
+    "description": "Create a new test case and verify it appears in the list.",
+    "steps": [
+      { "action": "goto", "params": { "url": "/test-cases" }, "description": "Navigate to Test Cases page" },
+      { "action": "click", "params": { "selector": "button:has-text(\"新建用例\")" }, "description": "Click add button" },
+      { "action": "fill", "params": { "selector": "input[placeholder=\"请输入测试用例标题\"]", "value": "E2E Asset Test Case" }, "description": "Enter title" },
+      { "action": "fill", "params": { "selector": "textarea[placeholder=\"请输入预期结果\"]", "value": "Success" }, "description": "Enter expected result" },
+      { "action": "click", "params": { "selector": ".el-dialog__footer button:has-text(\"确定\")" }, "description": "Confirm creation" },
+      { "action": "wait_text", "params": { "selector": "body", "text": "E2E Asset Test Case" }, "description": "Verify test case in list" }
+    ],
+    "expected": "Test case created and visible in the list."
+  },
+  {
+    "id": "TC-003",
+    "name": "Edit Test Case",
+    "description": "Edit an existing test case and verify changes.",
+    "steps": [
+      { "action": "goto", "params": { "url": "/test-cases" }, "description": "Navigate to Test Cases page" },
+      { "action": "click", "params": { "selector": "tr:has-text(\"E2E Asset Test Case\") button:has-text(\"编辑\")" }, "description": "Click edit button for the case" },
+      { "action": "fill", "params": { "selector": "input[placeholder=\"请输入测试用例标题\"]", "value": "E2E Asset Test Case Updated" }, "description": "Update title" },
+      { "action": "click", "params": { "selector": ".el-dialog__footer button:has-text(\"确定\")" }, "description": "Confirm update" },
+      { "action": "wait_text", "params": { "selector": "body", "text": "E2E Asset Test Case Updated" }, "description": "Verify updated title in list" }
+    ],
+    "expected": "Test case updated successfully."
+  },
+  {
+    "id": "TC-004",
+    "name": "Delete Test Case",
+    "description": "Delete a test case and verify it is removed.",
+    "steps": [
+      { "action": "goto", "params": { "url": "/test-cases" }, "description": "Navigate to Test Cases page" },
+      { "action": "click", "params": { "selector": "tr:has-text(\"E2E Asset Test Case Updated\") button:has-text(\"删除\")" }, "description": "Click delete button" },
+      { "action": "click", "params": { "selector": "button:has-text(\"确定\"):visible" }, "description": "Confirm deletion" },
+      { "action": "wait_gone", "params": { "selector": "text=E2E Asset Test Case Updated" }, "description": "Verify test case is gone" }
+    ],
+    "expected": "Test case removed from the list."
+  },
+  {
+    "id": "TC-005",
+    "name": "Bug Status Flow",
+    "description": "Verify bug status transition from Open to Resolved.",
+    "steps": [
+      { "action": "goto", "params": { "url": "/bugs" }, "description": "Navigate to Bugs page" },
+      { "action": "click", "params": { "selector": "button:has-text(\"新增Bug\")" }, "description": "Click add bug button" },
+      { "action": "fill", "params": { "selector": "input[placeholder=\"请输入Bug标题\"]", "value": "Stability Flow Bug" }, "description": "Enter bug title" },
+      { "action": "click", "params": { "selector": ".el-dialog__footer button:has-text(\"确定\")" }, "description": "Confirm bug creation" },
+      { "action": "click", "params": { "selector": "tr:has-text(\"Stability Flow Bug\") button:has-text(\"编辑\")" }, "description": "Open bug edit" },
+      { "action": "select_option", "params": { "selector": "input[placeholder=\"请选择状态\"]", "value": "RESOLVED", "label": "已解决" }, "description": "Change status to Resolved" },
+      { "action": "click", "params": { "selector": ".el-dialog__footer button:has-text(\"确定\")" }, "description": "Confirm status update" },
+      { "action": "wait_text", "params": { "selector": "tr:has-text(\"Stability Flow Bug\")", "text": "已解决" }, "description": "Verify status is Resolved" }
+    ],
+    "expected": "Bug status changed to Resolved."
+  },
+  {
+    "id": "TC-006",
+    "name": "Dashboard Multi-dimensional Validation",
+    "description": "Verify dashboard stats reflect system state.",
+    "steps": [
+      { "action": "goto", "params": { "url": "/dashboard" }, "description": "Navigate to Dashboard" },
+      { "action": "wait_for", "params": { "selector": ".stat-card" }, "description": "Wait for stats cards" },
+      { "action": "eval", "params": { "expression": "document.querySelectorAll('.stat-value').length >= 4" }, "description": "Verify at least 4 stat metrics" }
+    ],
+    "expected": "Dashboard displays all key metrics."
+  }
+]
